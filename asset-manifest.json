@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/CharlieCrosley/Pathfinder.git/static/css/main.c9a1e306.chunk.css",
+    "main.js": "/CharlieCrosley/Pathfinder.git/static/js/main.7f10478c.chunk.js",
+    "main.js.map": "/CharlieCrosley/Pathfinder.git/static/js/main.7f10478c.chunk.js.map",
+    "runtime-main.js": "/CharlieCrosley/Pathfinder.git/static/js/runtime-main.15fe9f2e.js",
+    "runtime-main.js.map": "/CharlieCrosley/Pathfinder.git/static/js/runtime-main.15fe9f2e.js.map",
+    "static/css/2.a31e845b.chunk.css": "/CharlieCrosley/Pathfinder.git/static/css/2.a31e845b.chunk.css",
+    "static/js/2.82d0dffb.chunk.js": "/CharlieCrosley/Pathfinder.git/static/js/2.82d0dffb.chunk.js",
+    "static/js/2.82d0dffb.chunk.js.map": "/CharlieCrosley/Pathfinder.git/static/js/2.82d0dffb.chunk.js.map",
+    "index.html": "/CharlieCrosley/Pathfinder.git/index.html",
+    "precache-manifest.e86cbfbd8bc71de2a04f25b453651e4f.js": "/CharlieCrosley/Pathfinder.git/precache-manifest.e86cbfbd8bc71de2a04f25b453651e4f.js",
+    "service-worker.js": "/CharlieCrosley/Pathfinder.git/service-worker.js",
+    "static/css/2.a31e845b.chunk.css.map": "/CharlieCrosley/Pathfinder.git/static/css/2.a31e845b.chunk.css.map",
+    "static/css/main.c9a1e306.chunk.css.map": "/CharlieCrosley/Pathfinder.git/static/css/main.c9a1e306.chunk.css.map"
+  }
+}
