@@ -25,7 +25,8 @@ export default class PathfindingVisualizer extends Component {
     };
     this.pathInProgress = false;
     this.clearGrid = false;
-    this.cancelPath = false;
+    this.cancelPathAnimation = false;
+    this.cancelShortestPathAnimation = true;
   }
 
   componentDidMount() {
@@ -51,16 +52,21 @@ export default class PathfindingVisualizer extends Component {
 
   animateSearch(visitedNodesInOrder, nodesInShortestPathOrder) {
     for (let i = 0; i <= visitedNodesInOrder.length; i++) {
+      if (this.cancelPathAnimation) {
+        this.clearGrid = false;
+        this.pathInProgress = false;
+        this.cancelPathAnimation = false;
+        this.cancelShortestPathAnimation = true;
+        while (this.timeoutPath) {
+          clearTimeout(this.timeoutPath); // will do nothing if no timeout with id is present
+          this.timeoutPath--;
+        }
+        this.visualizeAlgorithm();
+        return;
+      }
       if (i === visitedNodesInOrder.length) {
-        this.timeoutPath =setTimeout(() => {
+        setTimeout(() => {
           this.animateShortestPath(nodesInShortestPathOrder);
-          if (this.cancelPath) {
-            this.clearGrid = false;
-            this.pathInProgress = false;
-            this.cancelPath = false;
-            this.visualizeAlgorithm();
-            return;
-          }
           this.clearGrid = false;
           this.pathInProgress = false;
         }, 3 * i);
@@ -68,17 +74,24 @@ export default class PathfindingVisualizer extends Component {
       }
       const node = visitedNodesInOrder[i];
       if (!node.isStart && !node.isFinish){
-        this.timeout = setTimeout(() => {
+        this.timeoutPath = setTimeout(() => {
           document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
         }, 3 * i);
       }
-      
     } 
   }
 
   animateShortestPath(nodesInShortestPathOrder) {
     for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
-      setTimeout(() => {
+      if (this.cancelShortestPathAnimation) {
+        while (this.timeoutShortestPath) {
+          clearTimeout(this.timeoutShortestPath); // will do nothing if no timeout with id is present
+          this.timeoutShortestPath--;
+        }
+        this.cancelShortestPathAnimation = false;
+        return;
+      }
+      this.timeoutShortestPath = setTimeout(() => {
         const node = nodesInShortestPathOrder[i];
         document.getElementById(`node-${node.row}-${node.col}`).className =
           'node node-shortest-path';
@@ -87,10 +100,9 @@ export default class PathfindingVisualizer extends Component {
   }
 
   visualizeAlgorithm() {
-    const {grid, pathInProgress, clearGrid} = this.state;
+    const {grid} = this.state;
     if (this.pathInProgress) { // already calculating a path
-      this.cancelPath = true;
-      return;
+      this.cancelPathAnimation = true;
     } 
     if (!this.clearGrid) {
       this.ClearPreviousVisualization();
@@ -162,7 +174,6 @@ export default class PathfindingVisualizer extends Component {
       <>
         <Navbar bg="light" expand="lg">
           <Container>
-            {/* <Navbar.Brand>Pathfinder</Navbar.Brand> */}
             <h1 id="title">Pathfinder</h1>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
@@ -173,6 +184,8 @@ export default class PathfindingVisualizer extends Component {
                 </NavDropdown>
                 <button className="Navbar-button" onMouseDown={() => this.visualizeAlgorithm()}>Visualize</button>
                 <button className="Navbar-button" onMouseDown={() => this.ClearGrid()}>Clear Grid</button>
+                <button className="Navbar-button" onMouseDown={() => this.PlaceStart()}>Place Start</button>
+                <button className="Navbar-button" onMouseDown={() => this.PlaceFinish()}>Place Finish</button>
               </Nav>
             </Navbar.Collapse>
           </Container>
