@@ -90,7 +90,7 @@ export default class PathfindingVisualizer extends Component {
     const {grid, pathInProgress, clearGrid} = this.state;
     if (this.pathInProgress) { // already calculating a path
       this.cancelPath = true;
-      //return;
+      return;
     } 
     if (!this.clearGrid) {
       this.ClearPreviousVisualization();
