@@ -25,6 +25,7 @@ export default class PathfindingVisualizer extends Component {
     };
     this.pathInProgress = false;
     this.clearGrid = false;
+    this.cancelPath = false;
   }
 
   componentDidMount() {
@@ -53,9 +54,16 @@ export default class PathfindingVisualizer extends Component {
       if (i === visitedNodesInOrder.length) {
         this.timeoutPath =setTimeout(() => {
           this.animateShortestPath(nodesInShortestPathOrder);
-        }, 5 * i);
-        this.clearGrid = false;
-        this.pathInProgress = false;
+          if (this.cancelPath) {
+            this.clearGrid = false;
+            this.pathInProgress = false;
+            this.cancelPath = false;
+            this.visualizeAlgorithm();
+            return;
+          }
+          this.clearGrid = false;
+          this.pathInProgress = false;
+        }, 3 * i);
         return;
       }
       const node = visitedNodesInOrder[i];
@@ -78,29 +86,16 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
-  /* visualizeDijkstra() {
+  visualizeAlgorithm() {
     const {grid, pathInProgress, clearGrid} = this.state;
     if (this.pathInProgress) { // already calculating a path
-      return;
+      this.cancelPath = true;
+      //return;
     } 
     if (!this.clearGrid) {
       this.ClearPreviousVisualization();
     }
-    const startNode = grid[START_NODE_ROW][START_NODE_COL];
-    const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-    const visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
-    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
-    this.animateSearch(visitedNodesInOrder, nodesInShortestPathOrder);
-  } */
-
-  visualizeAlgorithm(algorithm) {
-    const {grid, pathInProgress, clearGrid} = this.state;
-    if (this.pathInProgress) { // already calculating a path
-      return;
-    } 
-    if (!this.clearGrid) {
-      this.ClearPreviousVisualization();
-    }
+    this.pathInProgress = true;
     const startNode = grid[START_NODE_ROW][START_NODE_COL];
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
 
@@ -158,10 +153,6 @@ export default class PathfindingVisualizer extends Component {
     this.pathInProgress = false;
     this.clearGrid = true;
     this.setState({grid});
-  }
-
-  foo() {
-
   }
 
   render() {
