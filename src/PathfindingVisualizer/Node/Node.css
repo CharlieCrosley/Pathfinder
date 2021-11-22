@@ -54,6 +54,10 @@
   }
 }
 
+.node-visited-instant {
+  background-color: rgba(0, 190, 218, 0.75);
+}
+
 .node-wall {
   animation-name: placeWallAnimation;
   animation-duration: 0.3s;

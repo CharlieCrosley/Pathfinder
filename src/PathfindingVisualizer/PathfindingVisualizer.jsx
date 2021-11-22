@@ -22,13 +22,10 @@ export default class PathfindingVisualizer extends Component {
       mouseIsPressed: false,
       wallToggle: false,
       selectedAlgorithm: "Dijkstra",
-      startPlaced: true,
-      finishPlaced: true,
       movingStart: false,
       movingFinish: false,
     };
     this.pathInProgress = false;
-    this.pathFound = false;
     this.clearGrid = false;
     this.cancelPathAnimation = false;
     this.cancelShortestPathAnimation = false;
@@ -45,20 +42,26 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleMouseDown(row, col) {
-    const moveStart = true ? this.state.grid[row][col].isStart : false;
-    const moveFinish = true ? this.state.grid[row][col].isFinish : false;
-    if (moveStart) {
-      this.startPos = [row, col];
-      this.setState({mouseIsPressed: true, movingStart: true});
-    }
-    else if (moveFinish) {
-      this.finishPos = [row, col];
-      this.setState({mouseIsPressed: true, movingFinish: true});
-    }
-    else {
-      const wallToggle = true ? this.state.grid[row][col].isWall : false; // Place or erase wall (false = place)
-      AddWall(this.state.grid, row, col, wallToggle);
-      this.setState({mouseIsPressed: true, wallToggle:wallToggle});
+    if (!this.pathInProgress) {
+      /* If user clicks on start or finish they are moving it */
+      const moveStart = true ? this.state.grid[row][col].isStart : false;
+      const moveFinish = true ? this.state.grid[row][col].isFinish : false;
+      if (moveStart) {
+        this.startPos = [row, col];
+        this.ClearPreviousVisualization();
+        this.setState({mouseIsPressed: true, movingStart: true});
+      }
+      else if (moveFinish) {
+        this.finishPos = [row, col];
+        this.setState({mouseIsPressed: true, movingFinish: true});
+      }
+      else {
+        /* Otherwise they are placing a wall */
+        const wallToggle = true ? this.state.grid[row][col].isWall : false; // Place or erase wall (false = place)
+        this.ClearPreviousVisualization();
+        AddWall(this.state.grid, row, col, wallToggle);
+        this.setState({mouseIsPressed: true, wallToggle:wallToggle});
+      }
     }
   }
 
@@ -69,19 +72,6 @@ export default class PathfindingVisualizer extends Component {
       if (!this.state.grid[row][col].isStart) {
         if (!this.clearGrid) this.ClearPreviousVisualization();
 
-        /* if (this.pathFound){
-          setTimeout(() => {
-            const startNode = this.state.grid[this.startPos[0]][this.startPos[1]];
-            const finishNode = this.state.grid[this.finishPos[0]][this.finishPos[1]];
-            const visitedNodesInOrder = dijkstra(this.state.grid, startNode, finishNode);
-            this.previousNodesInOrder = visitedNodesInOrder;
-            const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
-            this.instantAnimateShortestPath(nodesInShortestPathOrder);
-          }, 100);
-          
-        } */
-        
-        
         const {grid} = this.state;
         grid[row][col].isStart = true;
         grid[this.startPos[0]][this.startPos[1]].isStart = false;
@@ -109,8 +99,11 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleMouseUp() {
-    const {grid} = this.state;
-    this.setState({grid, mouseIsPressed: false, movingStart: false, movingFinish: false}); // Set state only on mouse release to reduce lag
+    /* Stops user moving nodes or placing walls during visualization */
+    if (!this.pathInProgress) {
+      const {grid} = this.state;
+      this.setState({grid, mouseIsPressed: false, movingStart: false, movingFinish: false}); // Set state only on mouse release to reduce lag
+    }
   }
 
   animateSearch(visitedNodesInOrder, nodesInShortestPathOrder) {
@@ -193,7 +186,6 @@ export default class PathfindingVisualizer extends Component {
 
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
     this.animateSearch(visitedNodesInOrder, nodesInShortestPathOrder);
-    this.pathFound = true;
   }
 
   ClearPreviousVisualization() {
@@ -241,7 +233,6 @@ export default class PathfindingVisualizer extends Component {
     grid = getInitialGrid(this.startPos, this.finishPos);
     this.pathInProgress = false;
     this.clearGrid = true;
-    this.pathFound = false;
     this.setState({grid});
   }
 
@@ -262,8 +253,6 @@ export default class PathfindingVisualizer extends Component {
                 </NavDropdown>
                 <button className="Navbar-button" onMouseDown={() => this.visualizeAlgorithm()}>Visualize</button>
                 <button className="Navbar-button" onMouseDown={() => this.ClearGrid()}>Clear Grid</button>
-                <button className="Navbar-button" onMouseDown={() => this.PlaceStart()}>Place Start</button>
-                <button className="Navbar-button" onMouseDown={() => this.PlaceFinish()}>Place Finish</button>
               </Nav>
             </Navbar.Collapse>
           </Container>
@@ -303,7 +292,6 @@ export default class PathfindingVisualizer extends Component {
 }
 
 const getInitialGrid = (startPos, finishPos) => {
-  console.log(startPos);
   const grid = [];
   for (let row = 0; row < GRID_ROWS; row++) {
     const currentRow = [];
