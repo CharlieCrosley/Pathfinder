@@ -3,38 +3,50 @@
 // by backtracking from the finish node.
 export function astar(grid, startNode, finishNode) {
 
-    const visitedNodesInOrder = [];
-    startNode.distance = 0;
-    const unvisitedNodes = getAllNodes(grid);
-    while (!!unvisitedNodes.length) {
-      sortNodesByDistance(unvisitedNodes);
-      const closestNode = unvisitedNodes.shift();
-      // If we encounter a wall, we skip it.
-      if (closestNode.isWall) continue;
-      // If the closest node is at a distance of infinity,
-      // we must be trapped and should therefore stop.
-      if (closestNode.distance === Infinity) return visitedNodesInOrder;
-      closestNode.isVisited = true;
-      visitedNodesInOrder.push(closestNode);
-      if (closestNode === finishNode) return visitedNodesInOrder;
+  const visitedNodesInOrder = [];
+  const openSet = [];
+  startNode.g = 0;
+  startNode.f = 0;
+  openSet.push(startNode);
 
+  while (!!openSet.length) {
+    // This operation can occur in O(1) time if openSet is a min-heap or a priority queue
+    sortNodesByFScore(openSet);
+    const current = openSet.shift();
+    
+    // If we encounter a wall, we skip it.
+    if (current.isWall) continue;
+    // If the closest node is at a distance of infinity,
+    // we must be trapped and should therefore stop.
+    if (current.g === Infinity) return visitedNodesInOrder;
+    if (current === finishNode) return visitedNodesInOrder;
 
-      updateUnvisitedNeighbors(closestNode, grid, finishNode);
-    }
-  }
-  
-  function sortNodesByDistance(unvisitedNodes) {
-    unvisitedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
-  }
-  
-  function updateUnvisitedNeighbors(node, grid, finishNode) {
-    const unvisitedNeighbors = getUnvisitedNeighbors(node, grid);
+    visitedNodesInOrder.push(current);
+
+    const unvisitedNeighbors = getUnvisitedNeighbors(current, grid);
     for (const neighbor of unvisitedNeighbors) {
-        const g = node.distance + 1;
-        const h =  Math.sqrt((finishNode.row - neighbor.row) ** 2 + (finishNode.col - neighbor.col) ** 2);
-        neighbor.distance = g + h;
-        neighbor.previousNode = node;
+        // tentative_gScore is the distance from start to the neighbor through current
+        const tentative_gScore = current.g + 1;
+        const tentative_fScore = tentative_gScore + Heuristic(neighbor, finishNode);
+        if (tentative_gScore <= neighbor.g) {
+            // This path to neighbor is better than any previous one. Record it!
+            if (neighbor.g === Infinity) openSet.push(neighbor); // Unvisited node
+
+            neighbor.previousNode = current;
+            neighbor.g = tentative_gScore;
+            neighbor.f = tentative_fScore;
+        }   
+      }
     }
+  }
+
+  function Heuristic(neighbor, finishNode) {
+    /* Manhattan Distance since we are only allowed to move in 4 directions */
+    return Math.abs(neighbor.row - finishNode.row) + Math.abs(neighbor.col - finishNode.col);
+  }
+  
+  function sortNodesByFScore(unvisitedNodes) {
+    unvisitedNodes.sort((nodeA, nodeB) => nodeA.f - nodeB.f);
   }
   
   function getUnvisitedNeighbors(node, grid) {
@@ -45,16 +57,6 @@ export function astar(grid, startNode, finishNode) {
     if (col > 0) neighbors.push(grid[row][col - 1]);
     if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);
     return neighbors.filter(neighbor => !neighbor.isVisited);
-  }
-  
-  function getAllNodes(grid) {
-    const nodes = [];
-    for (const row of grid) {
-      for (const node of row) {
-        nodes.push(node);
-      }
-    }
-    return nodes;
   }
   
   // Backtracks from the finishNode to find the shortest path.

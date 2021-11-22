@@ -265,7 +265,7 @@ export default class PathfindingVisualizer extends Component {
             return (
               <div className="grid-row" key={rowIdx}>
                 {row.map((node, nodeIdx) => {
-                  const {row, col, isFinish, isStart, isWall, isVisited} = node;
+                  const {row, col, isFinish, isStart, isWall, isVisited, f, g} = node;
                   return (
                     <Node
                       key={nodeIdx}
@@ -280,7 +280,9 @@ export default class PathfindingVisualizer extends Component {
                         this.handleMouseEnter(row, col)
                       }
                       onMouseUp={() => this.handleMouseUp()}
-                      row={row}></Node>
+                      row={row}
+                      f={f}
+                      g={g}></Node>
                   );
                 })}
               </div>
@@ -314,6 +316,8 @@ const createNode = (col, row, startPos, finishPos) => {
     isVisited: false,
     isWall: false,
     previousNode: null,
+    f: Infinity,
+    g: Infinity,
   };
 };
 

@@ -30,7 +30,7 @@ body {
   border: none;
   outline: none;
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 600;
   width: 120px;
 }
 
@@ -42,7 +42,7 @@ body {
   margin: 0;
   color: black;
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 600;
   border: none;
   padding-right: 20px;
   transition-duration: 0s;
