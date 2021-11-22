@@ -53,6 +53,7 @@ export default class PathfindingVisualizer extends Component {
       }
       else if (moveFinish) {
         this.finishPos = [row, col];
+        this.ClearPreviousVisualization();
         this.setState({mouseIsPressed: true, movingFinish: true});
       }
       else {
