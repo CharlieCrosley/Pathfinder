@@ -181,7 +181,7 @@ export default class PathfindingVisualizer extends Component {
     const startNode = grid[this.startPos[0]][this.startPos[1]];
     const finishNode = grid[this.finishPos[0]][this.finishPos[1]];
 
-    var visitedNodesInOrder = [];
+    var visitedNodesInOrder;
     if (this.state.selectedAlgorithm === "Dijkstra") visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
     else if (this.state.selectedAlgorithm === "A*") visitedNodesInOrder = astar(grid, startNode, finishNode);
 
@@ -192,6 +192,7 @@ export default class PathfindingVisualizer extends Component {
   ClearPreviousVisualization() {
     // Keeps walls in clear
     const {grid} = this.state;
+    
     for(const row of grid) {
       for(const node of row) {
         if (node.isStart) {
@@ -200,6 +201,8 @@ export default class PathfindingVisualizer extends Component {
         else if (node.isFinish) {
           document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-finish';
           node.distance = Infinity;
+          node.g = Infinity;
+          node.f = Infinity;
           node.previousNode = null;
           node.isVisited = false;
         } 
@@ -207,6 +210,8 @@ export default class PathfindingVisualizer extends Component {
           document.getElementById(`node-${node.row}-${node.col}`).className = 'node';
           node.isVisited = false;
           node.distance = Infinity;
+          node.g = Infinity;
+          node.f = Infinity;
           node.previousNode = null;
         } 
         else {

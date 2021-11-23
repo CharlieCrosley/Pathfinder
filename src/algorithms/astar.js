@@ -11,7 +11,7 @@ export function astar(grid, startNode, finishNode) {
 
   while (!!openSet.length) {
     // This operation can occur in O(1) time if openSet is a min-heap or a priority queue
-    sortNodesByFScore(openSet);
+    sortNodesByFScore(openSet); 
     const current = openSet.shift();
     
     // If we encounter a wall, we skip it.
@@ -22,16 +22,16 @@ export function astar(grid, startNode, finishNode) {
     if (current === finishNode) return visitedNodesInOrder;
 
     visitedNodesInOrder.push(current);
-
     const unvisitedNeighbors = getUnvisitedNeighbors(current, grid);
+
     for (const neighbor of unvisitedNeighbors) {
         // tentative_gScore is the distance from start to the neighbor through current
         const tentative_gScore = current.g + 1;
         const tentative_fScore = tentative_gScore + Heuristic(neighbor, finishNode);
         if (tentative_gScore <= neighbor.g) {
             // This path to neighbor is better than any previous one. Record it!
-            if (neighbor.g === Infinity) openSet.push(neighbor); // Unvisited node
-
+            if (neighbor.g === Infinity) insertNewNode(neighbor, openSet);
+            
             neighbor.previousNode = current;
             neighbor.g = tentative_gScore;
             neighbor.f = tentative_fScore;
@@ -41,12 +41,30 @@ export function astar(grid, startNode, finishNode) {
   }
 
   function Heuristic(neighbor, finishNode) {
-    /* Manhattan Distance since we are only allowed to move in 4 directions */
+    /* Manhattan Distance since we are only allowed to move in 4 directions
+       Multiplied by constant to reduce nodes searched */
     return Math.abs(neighbor.row - finishNode.row) + Math.abs(neighbor.col - finishNode.col);
   }
   
   function sortNodesByFScore(unvisitedNodes) {
     unvisitedNodes.sort((nodeA, nodeB) => nodeA.f - nodeB.f);
+  }
+
+  function insertNewNode(node, arr) {
+    /* Insert node into array based on f score (sorted in ascending order) */
+    if (!arr.length) {
+      arr.push(node);
+      return;
+    }
+    for (var i = 0; i < arr.length; i++) {
+      /* if (node = arr[i]) {
+        arr.splice(i, 0, node);
+      } */
+      if (node.f >= arr[i].f) {
+        arr.splice(i, 0, node);
+        return;
+      }
+    }
   }
   
   function getUnvisitedNeighbors(node, grid) {
