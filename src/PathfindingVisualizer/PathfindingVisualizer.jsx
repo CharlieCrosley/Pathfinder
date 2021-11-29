@@ -107,24 +107,41 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
+  clearVisitedAnimationTimeouts() {
+    while (this.timeoutPath) {
+      clearTimeout(this.timeoutPath); // cancels all timeouts/animations, will do nothing if no timeout with id is present
+      this.timeoutPath--;
+    }
+    
+      while (this.timeoutShortestPath) {
+        clearTimeout(this.timeoutShortestPath); // will do nothing if no timeout with id is present
+        this.timeoutShortestPath--;
+      }
+    
+  }
+
+  clearShortestPathAnimationTimeouts() {
+    while (this.timeoutShortestPath) {
+      clearTimeout(this.timeoutShortestPath); // will do nothing if no timeout with id is present
+      this.timeoutShortestPath--;
+    }
+  }
+
   animateSearch(visitedNodesInOrder, nodesInShortestPathOrder) {
+    this.clearGrid = false;
     for (let i = 0; i <= visitedNodesInOrder.length; i++) {
       if (this.cancelPathAnimation) {
         this.clearGrid = false;
         this.pathInProgress = false;
         this.cancelPathAnimation = false;
         this.cancelShortestPathAnimation = true;
-        while (this.timeoutPath) {
-          clearTimeout(this.timeoutPath); // cancels all timeouts/animations, will do nothing if no timeout with id is present
-          this.timeoutPath--;
-        }
+        this.clearVisitedAnimationTimeouts(); // cancels all timeouts/animations, will do nothing if no timeout with id is present
         this.visualizeAlgorithm();
         return;
       }
       if (i === visitedNodesInOrder.length) {
         setTimeout(() => {
           this.animateShortestPath(nodesInShortestPathOrder);
-          this.clearGrid = false;
           this.pathInProgress = false;
         }, 3 * i);
         return;
@@ -141,10 +158,7 @@ export default class PathfindingVisualizer extends Component {
   animateShortestPath(nodesInShortestPathOrder) {
     for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
       if (this.cancelShortestPathAnimation) {
-        while (this.timeoutShortestPath) {
-          clearTimeout(this.timeoutShortestPath); // will do nothing if no timeout with id is present
-          this.timeoutShortestPath--;
-        }
+        this.clearShortestPathAnimationTimeouts(); // will do nothing if no timeout with id is present
         this.cancelShortestPathAnimation = false;
         return;
       }
@@ -237,7 +251,10 @@ export default class PathfindingVisualizer extends Component {
       }
     }
     grid = getInitialGrid(this.startPos, this.finishPos);
+    this.clearVisitedAnimationTimeouts()
+    this.clearShortestPathAnimationTimeouts(); 
     this.pathInProgress = false;
+    this.cancelPathAnimation = true;
     this.clearGrid = true;
     this.setState({grid});
   }
@@ -247,7 +264,7 @@ export default class PathfindingVisualizer extends Component {
 
     return (
       <>
-        <Navbar bg="light" expand="lg">
+        <Navbar className="Navbar-custom" expand="lg">
           <Container>
             <h1 id="title">Pathfinder</h1>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
